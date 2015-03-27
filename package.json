@@ -1,0 +1,21 @@
+{
+  "name": "express-timeout-header",
+  "version": "0.0.0",
+  "description": "Express middleware for handling HTTP 'Timeout' header (wait until file exists before 404)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brendanlong/express-timeout-header.git"
+  },
+  "keywords": [
+    "express"
+  ],
+  "author": "Brendan Long <b.long@cablelabs.com>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/brendanlong/express-timeout-header/issues"
+  }
+}
