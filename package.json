@@ -20,6 +20,10 @@
     "jshint": "latest"
   },
   "scripts": {
-    "pretest": "jshint index.js"
+    "pretest": "jshint index.js",
+    "test": "true"
+  },
+  "dependencies": {
+    "etag": "^1.5.1"
   }
 }

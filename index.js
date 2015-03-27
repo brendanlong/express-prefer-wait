@@ -8,11 +8,14 @@
  */
 "use strict";
 
+var etag = require("etag");
 var fs = require("fs");
 var path = require("path");
 
 var defaults = {
-    maxTimeout: 60000
+    index: "index.html",
+    maxTimeout: 60000,
+    etag: false
 };
 
 module.exports = function(root, options) {
@@ -23,49 +26,63 @@ module.exports = function(root, options) {
     }
 
     return function(req, res, next) {
+        var timeout = 0;
+        if ("timeout" in req.headers) {
+            timeout = Math.min(options.maxTimeout, req.headers.timeout);
+        }
+        if (timeout <= 0) {
+            return next();
+        }
+
         var file = path.join(root, "./" + req.url);
 
-        /* Don't bother watching files outside of the directory */
+        /* Don't watch files outside of the directory */
         if (file.indexOf(root) !== 0) {
             return next();
         }
 
         if (req.url[req.url.length - 1] == "/") {
-            file = path.join(file, "index.html");
+            file = path.join(file, options.index);
         }
 
-        fs.exists(file, function(exists) {
-            if (exists) {
-                return next();
+        var watcher = null;
+        var timer = null;
+        var done = function() {
+            if (watcher) {
+                watcher.close();
             }
+            clearTimeout(timer);
+            next();
+        };
 
-            var timeout = 0;
-            if ("timeout" in req.headers) {
-                timeout = Math.min(options.maxTimeout, req.headers.timeout);
-            }
-            if (timeout <= 0) {
-                return next();
-            }
-
-            var watcher = null;
-            var timer = null;
-            var done = function() {
-                if (watcher) {
-                    watcher.close();
+        var checkAndSend = function() {
+            fs.stat(file, function(err, stats) {
+                if (err) {
+                    /* Keep waiting */
+                    return;
                 }
-                clearTimeout(timer);
-                next();
-            };
-            try {
-                watcher = fs.watch(path.dirname(file), function(event, changedFile) {
-                    if (changedFile == path.basename(file)) {
-                        done();
+                if (stats.isFile()) {
+                    if (!options.etag || !("if-none-match" in req.headers)) {
+                        return done();
                     }
-                });
-                timer = setTimeout(done, timeout);
-            } catch (err) {
-                done();
-            }
-        });
+                    var etags = req.headers["if-none-match"];
+                    if (err || etag(stats) != etags) {
+                        return done();
+                    }
+                }
+            });
+        };
+
+        try {
+            watcher = fs.watch(path.dirname(file), function(event, changedFile) {
+                if (changedFile == path.basename(file)) {
+                    checkAndSend();
+                }
+            });
+            timer = setTimeout(done, timeout);
+        } catch (err) {
+            done();
+        }
+        checkAndSend();
     };
 };
