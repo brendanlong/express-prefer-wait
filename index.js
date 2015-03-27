@@ -13,16 +13,20 @@ var fs = require("fs");
 var path = require("path");
 
 var defaults = {
+    etag: false,
     index: "index.html",
-    maxTimeout: 60000,
-    etag: false
+    maxTimeout: 60000
 };
 
 module.exports = function(root, options) {
+    root = path.resolve(root);
     for (var key in defaults) {
         if (!(key in options)) {
             options[key] = defaults[key];
         }
+    }
+    if (!Array.isArray(options.index)) {
+        options.index = [options.index];
     }
 
     return function(req, res, next) {
@@ -34,35 +38,46 @@ module.exports = function(root, options) {
             return next();
         }
 
-        var file = path.join(root, "./" + req.url);
+        var fullPath = path.resolve(root, "./" + req.url);
 
         /* Don't watch files outside of the directory */
-        if (file.indexOf(root) !== 0) {
+        if (fullPath.indexOf(root) !== 0) {
             return next();
         }
 
+        var files = [];
         if (req.url[req.url.length - 1] == "/") {
-            file = path.join(file, options.index);
+            for (var i = 0; i < options.index.length; ++i) {
+                files[i] = path.join(fullPath, options.index[i]);
+            }
+        } else {
+            files[0] = file;
         }
 
         var watcher = null;
         var timer = null;
+        var sent = false;
         var done = function() {
+            if (sent) {
+                return;
+            }
+            sent = true;
             if (watcher) {
                 watcher.close();
             }
             clearTimeout(timer);
             next();
         };
+        timer = setTimeout(done, timeout);
 
-        var checkAndSend = function() {
+        var checkAndSend = function(file) {
             fs.stat(file, function(err, stats) {
                 if (err) {
                     /* Keep waiting */
                     return;
                 }
                 if (stats.isFile()) {
-                    if (!options.etag || !("if-none-match" in req.headers)) {
+                    if (!(options.etag && ("if-none-match" in req.headers))) {
                         return done();
                     }
                     var etags = req.headers["if-none-match"];
@@ -74,15 +89,18 @@ module.exports = function(root, options) {
         };
 
         try {
-            watcher = fs.watch(path.dirname(file), function(event, changedFile) {
-                if (changedFile == path.basename(file)) {
-                    checkAndSend();
+            watcher = fs.watch(path.dirname(files[0]), function(event, changedFile) {
+                for (var i = 0; i < files.length; ++i) {
+                    if (changedFile == path.basename(files[i])) {
+                        checkAndSend(files[i]);
+                    }
                 }
             });
-            timer = setTimeout(done, timeout);
         } catch (err) {
             done();
         }
-        checkAndSend();
+        for (var i = 0; i < files.length; ++i) {
+            checkAndSend(files[i]);
+        }
     };
 };
