@@ -10,12 +10,13 @@
     "type": "git",
     "url": "https://github.com/brendanlong/express-timeout-header.git"
   },
-  "keywords": [
-    "express"
-  ],
   "author": "Brendan Long <b.long@cablelabs.com>",
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/brendanlong/express-timeout-header/issues"
-  }
+  },
+  "files": [
+    "index.js",
+    "LICENSE"
+  ]
 }
