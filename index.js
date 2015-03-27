@@ -51,7 +51,7 @@ module.exports = function(root, options) {
                 files[i] = path.join(fullPath, options.index[i]);
             }
         } else {
-            files[0] = file;
+            files[0] = fullPath;
         }
 
         var watcher = null;
@@ -99,8 +99,8 @@ module.exports = function(root, options) {
         } catch (err) {
             done();
         }
-        for (var i = 0; i < files.length; ++i) {
-            checkAndSend(files[i]);
+        for (var j = 0; j < files.length; ++j) {
+            checkAndSend(files[j]);
         }
     };
 };
