@@ -18,20 +18,26 @@ This module implements [my proposal for an HTTP Timeout header](https://github.c
 
     var app = express;
     app.use(expressTimeout(staticFolder));
-    app.use(express.static(staticFolder))
+    app.use(express.static(staticFolder));
     app.listen(port);
 
 Note that the timeout header middleware should generally come before any static file servers, since all the middleware does is hold onto the request until the requested file appears or the timeout expires.
 
 Specifically, the API is:
 
-> expressTimeout(rootDirectory, options = {maxTimeout = 60000})
+> expressTimeout(rootDirectory, options = {etag = false, indexes = ["index.html"], maxTimeout = 60000})
 >
 >   * rootDirectory - The root directory to serve files from. Should be the same as your static file server's root directory.
+>   * etag - Set to true to wait until etag changes before sending existing file.
+>   * indexes - List of files to watch when a directory is requested.
 >   * maxTimeout - The maximum time to wait for a file to appear (in milliseconds). The actual timeout will be `min(maxTimeout, request.headers.timeout)`.
 
-Here's an example setting the maximum timeout to 10 seconds:
+Here's an example setting the maximum timeout to 10 seconds, turning on etag behavior, and watching for both "index.html" and "index.htm":
 
-    app.use(expressTimeout(staticFolder, {maxTimeout: 10000}));
+    var indexes = ["index.html", "index.htm"];
+    app.use(expressTimeout(staticFolder, {etag: true, index: indexes, maxTimeout: 10000}));
+    app.use(express.static(staticFolder, {index: indexes);
+
+For etags, `etag(fstat)` is used in order to match [send's behavior](https://github.com/pillarjs/send/blob/master/index.js) ("send" is the module Express's static middleware uses for etags).
 
 See [this repo](https://github.com/brendanlong/dash-http-timeout) for a more complete example (in CoffeeScript).
