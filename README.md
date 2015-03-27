@@ -23,4 +23,15 @@ This module implements [my proposal for an HTTP Timeout header](https://github.c
 
 Note that the timeout header middleware should generally come before any static file servers, since all the middleware does is hold onto the request until the requested file appears or the timeout expires.
 
+Specifically, the API is:
+
+> expressTimeout(rootDirectory, options = {maxTimeout = 60000})
+>
+>   * rootDirectory - The root directory to serve files from. Should be the same as your static file server's root directory.
+>   * maxTimeout - The maximum time to wait for a file to appear (in milliseconds). The actual timeout will be `min(maxTimeout, request.headers.timeout)`.
+
+Here's an example setting the maximum timeout to 10 seconds:
+
+    app.use(expressTimeout(staticFolder, {maxTimeout: 10000}));
+
 See [this repo](https://github.com/brendanlong/dash-http-timeout) for a more complete example (in CoffeeScript).

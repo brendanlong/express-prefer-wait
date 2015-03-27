@@ -12,8 +12,7 @@ var fs = require("fs");
 var path = require("path");
 
 var defaults = {
-    maxTimeout: 60000,
-    requireHeader: true
+    maxTimeout: 60000
 };
 
 module.exports = function(root, options) {
@@ -43,8 +42,6 @@ module.exports = function(root, options) {
             var timeout = 0;
             if ("timeout" in req.headers) {
                 timeout = Math.min(options.maxTimeout, req.headers.timeout);
-            } else if (!options.requireHeader) {
-                timeout = options.maxTimeout;
             }
             if (timeout <= 0) {
                 return next();
