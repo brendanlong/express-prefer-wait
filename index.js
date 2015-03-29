@@ -83,7 +83,7 @@ module.exports = function(root, options) {
                         return done();
                     }
                     var etags = req.headers["if-none-match"];
-                    if (err || etag(stats) != etags) {
+                    if (etag(stats) != etags) {
                         return done();
                     }
                 }

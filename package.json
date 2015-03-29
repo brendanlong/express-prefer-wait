@@ -17,11 +17,15 @@
     "LICENSE"
   ],
   "devDependencies": {
-    "jshint": "latest"
+    "express": "^4.12.3",
+    "jshint": "latest",
+    "mocha": "^2.2.1",
+    "supertest": "^0.15.0",
+    "tmp": "0.0.25"
   },
   "scripts": {
-    "pretest": "jshint index.js",
-    "test": "true"
+    "pretest": "jshint index.js test.js",
+    "test": "mocha test.js"
   },
   "dependencies": {
     "etag": "^1.5.1"
