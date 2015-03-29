@@ -19,6 +19,8 @@ var defaults = {
 };
 
 module.exports = function(root, options) {
+    options = options || {};
+
     root = path.resolve(root);
     for (var key in defaults) {
         if (!(key in options)) {
