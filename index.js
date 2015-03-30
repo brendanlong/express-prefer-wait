@@ -18,6 +18,23 @@ var defaults = {
     maxTimeout: 60000
 };
 
+function getPreference(preferenceName, headers) {
+    if ("prefer" in headers) {
+        var preferences = headers.prefer.split(";");
+        for (var i = 0; i < preferences.length; ++i) {
+            var preference = preferences[i].trim();
+            var keyValue = preference.split("=");
+            if (keyValue.length !== 2) {
+                continue;
+            }
+            if (keyValue[0] == preferenceName) {
+                return keyValue[1];
+            }
+        }
+    }
+    return 0;
+}
+
 module.exports = function(root, options) {
     options = options || {};
 
@@ -32,10 +49,8 @@ module.exports = function(root, options) {
     }
 
     return function(req, res, next) {
-        var timeout = 0;
-        if ("timeout" in req.headers) {
-            timeout = Math.min(options.maxTimeout, req.headers.timeout);
-        }
+        var timeout = Math.min(options.maxTimeout,
+            getPreference("wait", req.headers));
         if (timeout <= 0) {
             return next();
         }

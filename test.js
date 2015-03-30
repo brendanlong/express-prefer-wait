@@ -51,7 +51,7 @@ describe("Existing file", function() {
                 request(app)
                     .get(path.join("/", file))
                     .set("If-None-Match", etag(stats))
-                    .set("Timeout", timeout)
+                    .set("Prefer", "wait=" + timeout)
                     .expect(200, bodyAfter)
                     .end(done);
                 setTimeout(function() {
@@ -81,7 +81,7 @@ describe("Non-existing file", function() {
     it("responds with 404 if timeout expires", function(done) {
         request(app)
             .get(path.join("/", file))
-            .set("Timeout", timeout)
+            .set("Prefer", "wait=" + timeout)
             .expect(404)
             .end(done);
     });
@@ -89,7 +89,7 @@ describe("Non-existing file", function() {
     it("responds with 200 if file is created before timeout expires", function(done) {
         request(app)
             .get(path.join("/", file))
-            .set("Timeout", timeout)
+            .set("Prefer", "wait=" + timeout)
             .expect(200, body)
             .end(done);
         setTimeout(function() {
@@ -109,7 +109,7 @@ describe("Non-existing file", function() {
 
         request(app)
             .get(path.join("/", file))
-            .set("Timeout", timeout)
+            .set("Prefer", "wait=" + timeout)
             .expect(404)
             .end(done);
         setTimeout(function() {
@@ -129,7 +129,7 @@ describe("Non-existing file", function() {
 
         request(app)
             .get(path.join("/", file))
-            .set("Timeout", timeout / 4)
+            .set("Prefer", "wait=" + (timeout / 4))
             .expect(404)
             .end(done);
         setTimeout(function() {
@@ -182,7 +182,7 @@ describe("Non-existing index files", function() {
     it("responds with 404 if timeout expires", function(done) {
         request(app)
             .get("/")
-            .set("Timeout", timeout)
+            .set("Prefer", "wait=" + timeout)
             .expect(404)
             .end(done);
     });
@@ -190,7 +190,7 @@ describe("Non-existing index files", function() {
     it("responds with 200 if file is created before timeout expires", function(done) {
         request(app)
             .get("/")
-            .set("Timeout", timeout)
+            .set("Prefer", "wait=" + timeout)
             .expect(200, body)
             .end(done);
         setTimeout(function() {

@@ -1,16 +1,16 @@
 {
-  "name": "express-timeout-header",
+  "name": "express-prefer-wait",
   "version": "0.0.0",
-  "description": "Express middleware for handling HTTP 'Timeout' header (wait until file exists before 404)",
+  "description": "Express middleware for handling HTTP 'Prefer: wait' header for static files",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/brendanlong/express-timeout-header.git"
+    "url": "https://github.com/brendanlong/express-prefer-wait.git"
   },
   "author": "Brendan Long <b.long@cablelabs.com>",
   "license": "BSD-2-Clause",
   "bugs": {
-    "url": "https://github.com/brendanlong/express-timeout-header/issues"
+    "url": "https://github.com/brendanlong/express-prefer-wait/issues"
   },
   "files": [
     "index.js",
