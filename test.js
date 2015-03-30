@@ -1,6 +1,7 @@
 /* jshint mocha: true */
 "use strict";
 
+var assert = require("assert");
 var etag = require("etag");
 var express = require("express");
 var fs = require("fs");
@@ -200,5 +201,57 @@ describe("Non-existing index files", function() {
                 }
             });
         }, timeout / 2);
+    });
+});
+
+var getPreference = middleware.getPreference;
+
+describe("Prefer Header Parsing", function() {
+    it("handles no Prefer header", function() {
+        var headers = {};
+        var timeout = getPreference(headers, "wait");
+        assert.strictEqual(timeout, null);
+    });
+
+    it("handles non-matching preference with no value", function() {
+        var headers = {"prefer": "response-async"};
+        var timeout = getPreference(headers, "wait");
+        assert.strictEqual(timeout, null);
+    });
+
+    it("handles non-matching preference with value", function() {
+        var headers = {"prefer": "handling=lenient"};
+        var timeout = getPreference(headers, "wait");
+        assert.strictEqual(timeout, null);
+    });
+
+    it("handles matching preference with no value", function() {
+        var headers = {"prefer": "wait"};
+        var timeout = getPreference(headers, "wait");
+        assert.strictEqual(timeout, null);
+    });
+
+    it("handles matching preference with value", function() {
+        var headers = {"prefer": "wait=10"};
+        var timeout = getPreference(headers, "wait");
+        assert.equal(timeout, 10);
+    });
+
+    it("handles matching preference with value and other preferences", function() {
+        var headers = {"prefer": "handling=lenient; wait=42; respond-async"};
+        var timeout = getPreference(headers, "wait");
+        assert.equal(timeout, 42);
+    });
+
+    it("handles duplicate preference with one value", function() {
+        var headers = {"prefer": "handling=lenient; wait; wait=20; respond-async"};
+        var timeout = getPreference(headers, "wait");
+        assert.equal(timeout, 20);
+    });
+
+    it("handles duplicate preference with multiple values", function() {
+        var headers = {"prefer": "handling=lenient; wait=99; wait=5; respond-async"};
+        var timeout = getPreference(headers, "wait");
+        assert.equal(timeout, 99);
     });
 });
