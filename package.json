@@ -1,6 +1,6 @@
 {
   "name": "express-prefer-wait",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Express middleware for handling HTTP 'Prefer: wait' header for static files",
   "main": "index.js",
   "repository": {
