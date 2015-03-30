@@ -17,9 +17,14 @@ var app = express();
 app.use(middleware(root, {etag: true}));
 app.use(express.static(root));
 
-var timeout = 200;
+var timeout = 4;
+var longTimeout = (timeout + 1) * 1000;
+var shortTimeout = (timeout / 2) * 1000;
+var superShortTimeout = (timeout / 4) * 1000;
 
 describe("Existing file", function() {
+    this.timeout(longTimeout);
+
     it("responds immediately", function(done) {
         var file = "existing.txt";
         var body = "Existing file text";
@@ -30,6 +35,7 @@ describe("Existing file", function() {
             }
             request(app)
                 .get(path.join("/", file))
+                .timeout(shortTimeout)
                 .expect(200, body)
                 .end(done);
         });
@@ -61,20 +67,21 @@ describe("Existing file", function() {
                             return done(err);
                         }
                     });
-                }, timeout / 2);
+                }, shortTimeout);
             });
         });
     });
 });
 
 describe("Non-existing file", function() {
+    this.timeout(longTimeout);
     var body = "Non-existing file text";
 
     it("responds immediately with 404 without header", function(done) {
         var file = "new-no-header.txt";
         request(app)
             .get(path.join("/", file))
-            .timeout(timeout / 2)
+            .timeout(shortTimeout)
             .expect(404)
             .end(done);
     });
@@ -101,7 +108,7 @@ describe("Non-existing file", function() {
                     return done(err);
                 }
             });
-        }, timeout / 2);
+        }, shortTimeout);
     });
 
     it("responds with 404 if server timeout expires", function(done) {
@@ -121,7 +128,7 @@ describe("Non-existing file", function() {
                     return done(err);
                 }
             });
-        }, timeout / 2);
+        }, shortTimeout);
     });
 
     it("responds with 404 if client timeout expires", function(done) {
@@ -141,11 +148,12 @@ describe("Non-existing file", function() {
                     return done(err);
                 }
             });
-        }, timeout / 2);
+        }, shortTimeout);
     });
 });
 
 describe("Existing index files", function() {
+    this.timeout(longTimeout);
     var index = "existing-index.html";
 
     var app = express();
@@ -161,6 +169,7 @@ describe("Existing index files", function() {
             }
             request(app)
                 .get("/")
+                .timeout(shortTimeout)
                 .expect(200, body)
                 .end(done);
         });
@@ -168,6 +177,7 @@ describe("Existing index files", function() {
 });
 
 describe("Non-existing index files", function() {
+    this.timeout(longTimeout);
     var body = "Non-existing index files test";
 
     it("responds immediately with 404 without header", function(done) {
@@ -179,6 +189,7 @@ describe("Non-existing index files", function() {
 
         request(app)
             .get("/")
+            .timeout(shortTimeout)
             .expect(404)
             .end(done);
     });
@@ -215,7 +226,7 @@ describe("Non-existing index files", function() {
                     return done(err);
                 }
             });
-        }, timeout / 2);
+        }, shortTimeout);
     });
 });
 

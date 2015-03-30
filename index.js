@@ -15,7 +15,7 @@ var path = require("path");
 var defaults = {
     etag: false,
     index: "index.html",
-    maxTimeout: 60000
+    maxTimeout: 60
 };
 
 function getPreference(headers, preferenceName) {
@@ -85,7 +85,7 @@ module.exports = function(root, options) {
             clearTimeout(timer);
             next();
         };
-        timer = setTimeout(done, timeout);
+        timer = setTimeout(done, timeout * 1000);
 
         var checkAndSend = function(file) {
             fs.stat(file, function(err, stats) {
