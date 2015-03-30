@@ -111,6 +111,22 @@ describe("Non-existing file", function() {
         }, shortTimeout);
     });
 
+    it("ignores non-integer waits", function(done) {
+        var file = "new-non-interger.txt";
+        request(app)
+            .get(path.join("/", file))
+            .set("Prefer", "wait=" + (timeout - 0.5))
+            .expect(404)
+            .end(done);
+        setTimeout(function() {
+            fs.writeFile(path.join(root, file), body, function(err) {
+                if (err) {
+                    return done(err);
+                }
+            });
+        }, shortTimeout);
+    });
+
     it("responds with 404 if server timeout expires", function(done) {
         var file = "short-server-timeout.txt";
         var app = express();

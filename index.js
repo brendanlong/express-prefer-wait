@@ -49,8 +49,12 @@ module.exports = function(root, options) {
     }
 
     return function(req, res, next) {
-        var timeout = Math.min(options.maxTimeout,
-            getPreference(req.headers, "wait"));
+        var timeout = getPreference(req.headers, "wait");
+        if (timeout !== null && /^\d+$/.test(timeout)) {
+            timeout = Math.min(timeout, options.maxTimeout);
+        } else {
+            timeout = 0;
+        }
         if (timeout <= 0) {
             return next();
         }
