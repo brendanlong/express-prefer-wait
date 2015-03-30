@@ -68,10 +68,10 @@ describe("Existing file", function() {
 });
 
 describe("Non-existing file", function() {
-    var file = "new.txt";
     var body = "Non-existing file text";
 
     it("responds immediately with 404 without header", function(done) {
+        var file = "new-no-header.txt";
         request(app)
             .get(path.join("/", file))
             .timeout(timeout / 2)
@@ -80,6 +80,7 @@ describe("Non-existing file", function() {
     });
 
     it("responds with 404 if timeout expires", function(done) {
+        var file = "new-timeout-expire.txt";
         request(app)
             .get(path.join("/", file))
             .set("Prefer", "wait=" + timeout)
@@ -88,6 +89,7 @@ describe("Non-existing file", function() {
     });
 
     it("responds with 200 if file is created before timeout expires", function(done) {
+        var file = "new-created.txt";
         request(app)
             .get(path.join("/", file))
             .set("Prefer", "wait=" + timeout)
@@ -166,14 +168,15 @@ describe("Existing index files", function() {
 });
 
 describe("Non-existing index files", function() {
-    var file = "new-index.html";
     var body = "Non-existing index files test";
 
-    var app = express();
-    app.use(middleware(root, {index: file}));
-    app.use(express.static(root, {index: file}));
-
     it("responds immediately with 404 without header", function(done) {
+        var file = "new-index-no-header.html";
+
+        var app = express();
+        app.use(middleware(root, {index: file}));
+        app.use(express.static(root, {index: file}));
+
         request(app)
             .get("/")
             .expect(404)
@@ -181,6 +184,12 @@ describe("Non-existing index files", function() {
     });
 
     it("responds with 404 if timeout expires", function(done) {
+        var file = "new-index-timeout.html";
+
+        var app = express();
+        app.use(middleware(root, {index: file}));
+        app.use(express.static(root, {index: file}));
+
         request(app)
             .get("/")
             .set("Prefer", "wait=" + timeout)
@@ -189,6 +198,12 @@ describe("Non-existing index files", function() {
     });
 
     it("responds with 200 if file is created before timeout expires", function(done) {
+        var file = "new-index-created.html";
+
+        var app = express();
+        app.use(middleware(root, {index: file}));
+        app.use(express.static(root, {index: file}));
+
         request(app)
             .get("/")
             .set("Prefer", "wait=" + timeout)
