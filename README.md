@@ -1,5 +1,7 @@
 # Express Middleware for HTTP "Prefer: wait" Header
 
+[![Circle CI](https://circleci.com/gh/brendanlong/express-prefer-wait.svg?style=shield)](https://circleci.com/gh/brendanlong/express-prefer-wait)
+
 This module implements [RFC 7240](http://tools.ietf.org/html/rfc7240)'s ["Prefer: wait"](http://tools.ietf.org/html/rfc7240#section-4.3), indicating to a server that it can wait until the header expires to finish processing a request. In the case of this server, it waits for a file to appear instead of immediately responding with a 404 or 304. This allows clients to request files that they know will exist soon (like MPEG-DASH segments during live streaming) and receive them immediately after they are created.
 
 **Warning: Due to limitations in Node.js's [`fs.watch`](https://nodejs.org/docs/latest/api/fs.html), we can't tell when a writer finishes writing a file. If you use this module, you should atomically move files into the folder (using [`rename`](http://linux.die.net/man/2/rename) for example). In future versions I intend to fix this by using [inotify](http://man7.org/linux/man-pages/man7/inotify.7.html) directly and waiting for `IN_WRITE_CLOSE`.**
